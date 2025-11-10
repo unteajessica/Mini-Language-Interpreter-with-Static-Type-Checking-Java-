@@ -1,0 +1,56 @@
+package model.expressions;
+
+import exceptions.MyException;
+import model.adt.MyIDictionary;
+import model.expressions.Exp;
+import model.types.IntType;
+import model.values.BoolValue;
+import model.values.IntValue;
+import model.values.Value;
+
+
+public class RelationalExp implements Exp {
+    private final Exp exp1;
+    private final Exp exp2;
+    private final String operator;  // operator as a string: <, <=, >, >=, ==, !=
+
+    public RelationalExp(Exp e1, Exp e2, String op) {
+        exp1 = e1;
+        exp2 = e2;
+        operator = op;
+    }
+
+    @Override
+    public Value eval(MyIDictionary<String, Value> tbl) throws MyException {
+        Value v1 = exp1.eval(tbl);
+        Value v2 = exp2.eval(tbl);
+
+        if (!(v1.getType().equals(new IntType())))
+            throw new MyException("First operand is not an integer.");
+        if (!(v2.getType().equals(new IntType())))
+            throw new MyException("Second operand is not an integer.");
+
+        int n1 = ((IntValue)v1).getVal();
+        int n2 = ((IntValue)v2).getVal();
+
+        return switch (operator) {
+            case "<" -> new BoolValue(n1 < n2);
+            case "<=" -> new BoolValue(n1 <= n2);
+            case "==" -> new BoolValue(n1 == n2);
+            case "!=" -> new BoolValue(n1 != n2);
+            case ">" -> new BoolValue(n1 > n2);
+            case ">=" -> new BoolValue(n1 >= n2);
+            default -> throw new MyException("Invalid relational operator: " + operator);
+        };
+    }
+
+    @Override
+    public Exp deepCopy() {
+        return new RelationalExp(exp1.deepCopy(), exp2.deepCopy(), operator);
+    }
+
+    @Override
+    public String toString() {
+        return exp1.toString() + " " + operator + " " + exp2.toString();
+    }
+}
