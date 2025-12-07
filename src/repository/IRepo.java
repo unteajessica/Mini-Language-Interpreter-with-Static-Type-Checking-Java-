@@ -3,9 +3,11 @@ import model.PrgState;
 import exceptions.MyException;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface IRepo {
-    PrgState getCurrentPrg();
     void addPrg(PrgState prg);
-    void logPrgStateExec() throws MyException, IOException;
+    void logPrgStateExec(PrgState prgState) throws MyException;
+    List<PrgState> getProgramsList();
+    void setProgramsList(List<PrgState> newProgramsList);
 }

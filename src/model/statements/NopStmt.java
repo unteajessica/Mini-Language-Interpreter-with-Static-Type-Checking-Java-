@@ -8,7 +8,7 @@ import model.types.*;
 import exceptions.MyException;
 
 public class NopStmt implements IStmt {
-    public PrgState execute(PrgState state) throws MyException { return state; }
+    public PrgState execute(PrgState state) throws MyException { return null; }
     public String toString() { return "nop"; }
 
     @Override

@@ -2,7 +2,7 @@ import view.View;
 
 public class Main {
    public static void main(String[] args) {
-      View.main(args);   // launch the menu from your View class
+      View.main();   // launch the menu from your View class
    }
 }
 

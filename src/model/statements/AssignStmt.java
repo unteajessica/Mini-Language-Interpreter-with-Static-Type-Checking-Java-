@@ -34,7 +34,7 @@ public class AssignStmt implements IStmt {
             }
         }
 
-        return state;
+        return null;
     }
 
     @Override

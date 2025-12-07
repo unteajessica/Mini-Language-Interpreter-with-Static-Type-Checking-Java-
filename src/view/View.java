@@ -126,6 +126,89 @@ public class View {
 
     }
 
+    IStmt testGarbageCollector() {
+        return new CompStmt(
+                // Ref int v;
+                new VarDeclStmt("v", new RefType(new IntType())),
+                new CompStmt(
+                        // new(v, 20);
+                        new NewStmt("v", new ValueExp(new IntValue(20))),
+                        new CompStmt(
+                                // Ref Ref int a;
+                                new VarDeclStmt("a", new RefType(new RefType(new IntType()))),
+                                new CompStmt(
+                                        // new(a, v);
+                                        new NewStmt("a", new VarExp("v")),
+                                        new CompStmt(
+                                                // new(v, 30);
+                                                new NewStmt("v", new ValueExp(new IntValue(30))),
+                                                // print(rH(rH(a)));
+                                                new PrintStmt(
+                                                        new ReadHeapExp(        // rH( … )
+                                                                new ReadHeapExp( // rH(a)
+                                                                        new VarExp("a")
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+        );
+    }
+
+    // fork example
+    // int v; Ref int a; v=10; new(a,22);
+    // fork( wH(a,30); v=32; print(v); print(rH(a)) );
+    // print(v); print(rH(a))
+    IStmt testFork() {
+        return new CompStmt(
+                // int v
+                new VarDeclStmt("v", new IntType()),
+                new CompStmt(
+                        // Ref int a
+                        new VarDeclStmt("a", new RefType(new IntType())),
+                        new CompStmt(
+                                // v = 10
+                                new AssignStmt("v", new ValueExp(new IntValue(10))),
+                                new CompStmt(
+                                        // new(a,22)
+                                        new NewStmt("a", new ValueExp(new IntValue(22))),
+                                        new CompStmt(
+                                                // fork(wH(a,30); v=32; print(v); print(rH(a)))
+                                                new ForkStmt(
+                                                        new CompStmt(
+                                                                new WriteHeapStmt("a", new ValueExp(new IntValue(30))),
+                                                                new CompStmt(
+                                                                        new AssignStmt("v", new ValueExp(new IntValue(32))),
+                                                                        new CompStmt(
+                                                                                new PrintStmt(new VarExp("v")),
+                                                                                new PrintStmt(
+                                                                                        new ReadHeapExp(
+                                                                                                new VarExp("a")
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                ),
+                                                // print(v); print(rH(a))
+                                                new CompStmt(
+                                                        new PrintStmt(new VarExp("v")),
+                                                        new PrintStmt(
+                                                                new ReadHeapExp(
+                                                                        new VarExp("a")
+                                                                )
+                                                        )
+                                                )
+                                        )
+
+                                )
+                        )
+                )
+        );
+    }
+
     private static PrgState prg(IStmt stmt) {
         return new PrgState(
                 new MyStack<>(),
@@ -137,7 +220,7 @@ public class View {
         );
     }
 
-    public static void main(String[] args) {
+    public static void main() {
         // --- Example 1 setup
         IStmt ex1 = example1();
         PrgState prg1 = prg(ex1);
@@ -174,10 +257,21 @@ public class View {
         IRepo repoWhile = new Repo(prgWhile, "logTestWhile.txt");
         Controller ctrWhile = new Controller(repoWhile);
 
+        // --- Test Garbage Collector
+        IStmt garbageCollectorProg = new View().testGarbageCollector();
+        PrgState prgGarbageCollector = prg(garbageCollectorProg);
+        IRepo repoGarbageCollector = new Repo(prgGarbageCollector, "logGarbageCollector.txt");
+        Controller ctrGarbageCollector = new Controller(repoGarbageCollector);
+
+        // --- Test Fork setup
+        IStmt forkProg = new View().testFork();
+        PrgState prgFork = prg(forkProg);
+        IRepo repoFork = new Repo(prgFork, "logTestFork.txt");
+        Controller ctrFork = new Controller(repoFork);
+
         // --- Text menu (PDF)
         TextMenu menu = new TextMenu();
         menu.addCommand(new ExitCommand("0", "exit"));
-        // If your Controller method is allSteps() (plural), make RunExample call that.
         menu.addCommand(new RunExample("1", ex1.toString(), ctr1));
         menu.addCommand(new RunExample("2", ex2.toString(), ctr2));
         menu.addCommand(new RunExample("3", ex3.toString(), ctr3));
@@ -185,6 +279,8 @@ public class View {
         menu.addCommand(new RunExample("5", testProg.toString(), ctrTest));
         menu.addCommand(new RunExample("6", heapProg.toString(), ctrHeap));
         menu.addCommand(new RunExample("7", whileProg.toString(), ctrWhile));
+        menu.addCommand(new  RunExample("8", garbageCollectorProg.toString(), ctrGarbageCollector));
+        menu.addCommand(new  RunExample("9", forkProg.toString(), ctrFork));
 
         menu.show();
     }

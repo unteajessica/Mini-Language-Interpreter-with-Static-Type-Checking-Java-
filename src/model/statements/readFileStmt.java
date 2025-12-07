@@ -72,7 +72,7 @@ public class readFileStmt implements IStmt {
 
         symTable.update(var_name, new IntValue(value));
 
-        return state;
+        return null;
     }
 
     @Override

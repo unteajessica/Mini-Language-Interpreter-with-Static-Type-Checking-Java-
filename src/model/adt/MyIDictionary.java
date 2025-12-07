@@ -9,4 +9,5 @@ public interface MyIDictionary<K,V> {
     void update(K key, V value); // change value by key
     String toString();
     Collection<V> getValues();
+    MyIDictionary<K,V> deepCopy();
 }

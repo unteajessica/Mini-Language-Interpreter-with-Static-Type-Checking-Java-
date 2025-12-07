@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Repo implements IRepo {
-    public final List<PrgState> programsList;
+    private List<PrgState> programsList;
     private final String logFilePath;
 
     public Repo(PrgState prg, String logFilePath) {
@@ -20,28 +20,29 @@ public class Repo implements IRepo {
         this.programsList.add(prg);
     }
 
-    public PrgState getCurrentPrg() {
-        return programsList.getFirst();
-    }
-
     @Override
     public void addPrg(PrgState prg) {
         programsList.add(prg);
     }
 
     @Override
-    public void logPrgStateExec() throws MyException, IOException {
-        PrintWriter logFile = new PrintWriter(new BufferedWriter(new FileWriter(logFilePath, true)));
-        PrgState currentPrg = getCurrentPrg();
-        /**
-        logFile.println("Original Program:");
-        logFile.println(currentPrg.getOriginalProgram().toString());
-        logFile.println("-----------------------------------------------");
-         **/
+    public void logPrgStateExec(PrgState prgState) throws MyException {
+        try (PrintWriter logFile =
+                     new PrintWriter(new BufferedWriter(new FileWriter(logFilePath, true)))) {
+            logFile.println(prgState.toString());
+            logFile.println("===============================================");
+        } catch (IOException e) {
+            throw new MyException("Could not write to log file: " + e.getMessage());
+        }
+    }
 
-        logFile.println(currentPrg.toString());
-        logFile.println("===============================================");
+    @Override
+    public List<PrgState> getProgramsList() {
+        return programsList;
+    }
 
-        logFile.close();
+    @Override
+    public void setProgramsList(List<PrgState> newProgramsList) {
+        this.programsList = newProgramsList;
     }
 }

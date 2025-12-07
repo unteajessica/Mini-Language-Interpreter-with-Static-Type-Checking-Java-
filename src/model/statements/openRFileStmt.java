@@ -51,7 +51,7 @@ public class openRFileStmt implements IStmt{
 
         System.out.println("Opened file: " + fileName);
 
-        return state;
+        return null;
 
     }
 

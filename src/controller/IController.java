@@ -1,11 +1,11 @@
 package controller;
 
 import model.PrgState;
-import exceptions.MyException;
-
-import java.io.IOException;
+import java.util.List;
 
 public interface IController {
-    PrgState oneStep(PrgState state) throws MyException;
-    void allSteps() throws MyException, IOException;
+    void setDisplayFlag(boolean value);
+    boolean getDisplayFlag();
+    void allSteps();
+    List<PrgState> removeCompletedPrg(List<PrgState> inPrgList);
 }
